@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#d63384">
+  <title>شفرة الحب 💍❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #d63384;
+      --primary-dark: #a61e63;
+      --bg1: #1a0029;
+      --bg2: #390050;
+      --success: #00e676;
+      --error: #ff5252;
+      --warning: #ffc107;
+      --mission: #ff6b35;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0; font-family: 'Tajawal', sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      color: #fff; min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+      padding: 15px;
+    }
+    .container { width: 100%; max-width: 520px; }
+    .card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px; padding: 24px;
+      box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    
+    .btn {
+      background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+      border: none; color: #fff; padding: 16px; border-radius: 16px;
+      font-size: 16px; font-weight: 800; font-family: inherit;
+      cursor: pointer; width: 100%; margin-top: 15px;
+      box-shadow: 0 5px 20px rgba(214,51,132,0.4);
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-secondary { background: rgba(255,255,255,0.1); box-shadow: none; }
+    .btn-mission { background: linear-gradient(45deg, var(--mission), #e55d2d); }
+
+    input {
+      width: 100%; padding: 15px; background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 14px;
+      color: #fff; font-family: inherit; font-size: 16px;
+      text-align: center; outline: none;
+    }
+    input:focus { border-color: var(--primary); }
+
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeUp 0.5s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+    .progress-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #ff80ab); transition: width 0.5s; }
+
+    .phase-indicator {
+      background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px;
+      margin-bottom: 20px; border-right: 4px solid var(--primary); text-align: center;
+    }
+    .phase-title { font-size: 18px; font-weight: 800; color: var(--primary); }
+    .phase-subtitle { font-size: 13px; opacity: 0.7; margin-top: 5px; }
+
+    .pin-grid { display: flex; gap: 10px; justify-content: center; margin: 20px 0; direction: ltr; }
+    .pin-input { width: 55px; height: 65px; font-size: 26px; border-radius: 16px; text-align: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+    .option-card {
+      background: rgba(255,255,255,0.05); padding: 18px; border-radius: 16px;
+      text-align: center; cursor: pointer; border: 2px solid transparent;
+      font-weight: 600; transition: 0.2s;
+    }
+    .option-card.selected { border-color: var(--primary); background: rgba(214,51,132,0.15); }
+
+    /* Bubbles Styling */
+    .status-bubble {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(25, 25, 45, 0.98);
+      padding: 25px 40px; border-radius: 20px;
+      text-align: center; display: none; z-index: 1000;
+      max-width: 90%;
+      animation: popIn 0.3s ease;
+    }
+    #successBubble { border: 3px solid var(--success); box-shadow: 0 10px 50px rgba(0,230,118,0.4); }
+    #errorBubble { border: 3px solid var(--error); box-shadow: 0 10px 50px rgba(255,82,82,0.4); }
+    
+    .status-bubble .icon { font-size: 50px; display: block; margin-bottom: 10px; }
+    .status-bubble .msg { font-size: 17px; font-weight: 700; line-height: 1.6; }
+    #successBubble .msg { color: var(--success); }
+    #errorBubble .msg { color: var(--error); }
+
+    @keyframes popIn { from{transform:translate(-50%,-50%) scale(0.5);opacity:0} to{transform:translate(-50%,-50%) scale(1);opacity:1} }
+
+    .back-btn {
+      position: fixed; top: 20px; right: 20px;
+      width: 45px; height: 45px; background: rgba(0,0,0,0.5);
+      border-radius: 50%; border: none; color: #fff; font-size: 20px;
+      cursor: pointer; display: none; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+
+    .mission-box {
+      background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(229,93,45,0.15));
+      border: 3px solid var(--mission); border-radius: 20px;
+      padding: 25px; margin: 20px 0; text-align: center;
+    }
+    .mission-icon { font-size: 70px; margin-bottom: 10px; }
+    .mission-title { font-size: 22px; font-weight: 900; color: var(--mission); }
+    .mission-desc { font-size: 16px; line-height: 1.9; margin-top: 15px; white-space: pre-line; }
+
+    .secret-code-box {
+      background: rgba(0,0,0,0.4); border: 2px dashed var(--warning);
+      border-radius: 15px; padding: 20px; margin: 20px 0;
+    }
+
+    .overlay-stars, .overlay-curtain {
+      position: fixed; inset: 0; z-index: 10000;
+      background: #1a0029; display: none; align-items: center; justify-content: center;
+      flex-direction: column; text-align: center;
+    }
+    
+    .final-code-container {
+      background: #1a1a2e; border: 4px solid var(--success);
+      border-radius: 25px; padding: 30px; margin: 25px 0; position: relative;
+    }
+    .final-code-digits { display: flex; justify-content: center; gap: 15px; }
+    .digit-box {
+      width: 70px; height: 90px; background: #00e676;
+      border-radius: 15px; display: flex; align-items: center; justify-content: center;
+      font-size: 48px; font-weight: 900; color: #000;
+    }
+    .confetti { position: fixed; width: 10px; height: 10px; z-index: 10001; animation: fall linear forwards; }
+    @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+  </style>
+</head>
+<body>
+
+<div id="successBubble" class="status-bubble">
+  <span class="icon">✨</span>
+  <span class="msg" id="successMsg"></span>
+</div>
+
+<div id="errorBubble" class="status-bubble">
+  <span class="icon">❌</span>
+  <span class="msg" id="errorMsg"></span>
+</div>
+
+<div class="overlay-stars" id="overlayStars">
+  <div class="content">
+    <div style="font-size:80px">👑</div>
+    <div style="font-size:28px; font-weight:900; color:var(--warning)">مبروك!</div>
+    <div style="font-size:18px" id="starsSubtitle"></div>
+  </div>
+</div>
+
+<div class="overlay-curtain" id="overlayCurtain">
+  <div class="content">
+    <div style="font-size:80px">🏆</div>
+    <div style="font-size:28px; font-weight:900; color:var(--primary)">مبروك!</div>
+    <div style="font-size:18px" id="curtainSubtitle"></div>
+  </div>
+</div>
+
+<button class="back-btn" id="backBtn" onclick="game.goBack()">⬅️</button>
+
+<div class="container">
+
+  <div id="screen-start" class="screen active">
+    <div class="card" style="text-align:center; padding: 40px 24px;">
+      <div style="font-size:70px;">💍❤️</div>
+      <h1 style="margin:15px 0 10px; font-size:32px;">شفرة الحب</h1>
+      <p style="opacity:0.85; line-height:1.8;">أربع مراحل من الحب والعشق<br>هااااه أنتِ مستعدة يازوجتي العزيزة!؟</p>
+      <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:12px; margin:20px 0; text-align:right;">
+        <div style="font-weight:700; margin-bottom:10px; text-align:center;">🎯 المراحل:</div>
+        <div style="font-size:14px; line-height:2.2;">
+          🕯️ 1. محطة الذكريات.. بدأ كل شيء<br>
+          🗺️ 2. متاهة التفاصيل<br>
+          ❤️ 3. نبض الحاضر.. لغة الأرواح<br>
+          🌙 4. أفق الغد.. المجهول الجميل
+        </div>
+      </div>
+      <button class="btn" onclick="game.start()">شدي حيلك علشان تفتحين القفل 😉</button>
+    </div>
+  </div>
+
+  <div id="screen-game" class="screen">
+    <div class="phase-indicator">
+      <div class="phase-title" id="phaseTitle">المرحلة 1</div>
+      <div class="phase-subtitle" id="phaseProgress"></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+    
+    <div class="card">
+      <h2 id="stageTitle" style="margin:0 0 10px; color:var(--primary); font-size:20px;"></h2>
+      <p id="stagePrompt" style="font-size:17px; line-height:1.7; white-space:pre-line; margin-bottom:20px;"></p>
+      
+      <div id="taskBox" style="background:rgba(255,255,255,0.05); padding:12px; border-radius:12px; margin-bottom:20px; border-right:4px solid var(--primary); display:none;">
+        🫶 <b>ملاحظة:</b> <span id="stageTask"></span>
+      </div>
+
+      <div id="inputContainer"></div>
+
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="btn btn-secondary" style="flex:1;" onclick="game.showHint()">💡 تلميح</button>
+        <button class="btn" style="flex:2; margin:0;" onclick="game.check()">تأكيد ✓</button>
+      </div>
+      
+      <div style="text-align:center; margin-top:15px;">
+        <span id="stageCounter" style="font-size:12px; opacity:0.6;"></span>
+        <span onclick="game.restart()" style="font-size:12px; opacity:0.6; margin-right:15px; cursor:pointer; text-decoration:underline;">إعادة من البداية</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-mission" class="screen">
+    <div class="card">
+      <div class="mission-box">
+        <div class="mission-icon" id="missionIcon">🎯</div>
+        <div class="mission-title">مبروك! أكملتِ المرحلة 🎉</div>
+        <div class="mission-desc" id="missionDesc"></div>
+      </div>
+      <div style="background:rgba(255,193,7,0.1); padding:15px; border-radius:12px; margin-bottom:15px; border-right:4px solid var(--warning);">
+        💡 أكملي المهمة وأدخلي الكود السري للمتابعة
+      </div>
+      <div class="secret-code-box">
+        <div style="font-size:14px; opacity:0.8; margin-bottom:10px;">🔐 الكود السري:</div>
+        <input type="text" id="secretCodeInput" placeholder="أدخلي الكود هنا..." autocomplete="off">
+      </div>
+      <button class="btn btn-mission" onclick="game.verifyCode()">تأكيد الكود ✅</button>
+    </div>
+  </div>
+
+  <div id="screen-win" class="screen">
+    <div class="card" style="text-align:center">
+      <div style="font-size:80px">🎁👑</div>
+      <h1 style="color:var(--primary); margin:15px 0 5px; font-size:26px;">وصلتي للنهاية!</h1>
+      <div style="line-height:2; font-size:16px; background:rgba(255,255,255,0.05); padding:20px; border-radius:15px; margin:15px 0;">
+        مبروك يا قلبي.. فككتِ كل الشفرات بنجاح. <br>
+        الكود اللي معك بالاسفل يفتح أول فصل في كتاب حياتنا سوا.. رحلة شهر العسل! <br>
+        وجهتنا صارت جاهزة، وباقي بس يدك بيدي ❤️
+      </div>
+      <div class="final-code-container">
+        <div class="final-code-digits" id="finalCodeDigits"></div>
+      </div>
+      <button class="btn btn-secondary" onclick="game.restart()">🔄 إعادة اللعبة</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const STORAGE = 'love_code_final_v2';
+const FINAL_CODE = '125';
+
+const PHASES = [
+  {
+    name: "محطة الذكريات", icon: "🕯️", celebration: "stars",
+    mission: { icon: "✉️", desc: "كم دقيقة كانت مدة أول مكالمة بيننا؟", code: "11" },
+    questions: [
+      { title: "تسخين 🔥", type: "text", prompt: "خلينا نسخن، اكتبي كلمة \"احبك\"", answer: "احبك", hint: 'بلا استهبال ، اكتبي "احبك" وبس', task: "يلا يلاااااا جاوبي", success: "كويس، البداية سهلة!" },
+      { title: "تاريخ العقد 💍", type: "pin4", prompt: "متى كان تاريخ العقد بالميلادي؟", answer: "2712", hint: "اكتبي التاريخ متتالي مثلا: يوم 15 شهر 11 = 1511", task: "تاريخ محفور بقلبي", success: "أعظم تاريخ في حياتي" },
+      { title: "عطر الملكة 🌸", type: "text", prompt: "وش كان نوع العطر اللي كنت حاطه يوم الملكة؟", answer: "مسك", hint: "عطر كلاسيكي أبيض", task: "نوع عطر وليس ماركة", success: "كفو! ذاكرتك قوية" }
+    ]
+  },
+  {
+    name: "متاهة التفاصيل", icon: "🗺️", celebration: "curtain",
+    mission: { icon: "💃", desc: "صوري فيديو قصير وأنتِ تلبسين أول لبس شفته عليك", code: "عطر ذكرى 2002" },
+    questions: [
+      { title: "حلى 🎂", type: "choice", prompt: "وشو الحلى المفضلة بالنسبة لي؟", answer: "كوكيز", options: "كيكه عسل,براوني,كوكيز,ما اكل حلى", hint: " اكييييد بتعرفين الحلى وش دعوا عاد !", success: "صح! طعمه دايم بالبال" },
+      { title: "لغة المكالمات 📞", type: "text", prompt: "وش الكلمة اللي أكررها إذا ما لقيت شيء أقوله؟", answer: "ايوه", hint: "كلمة من 4 حروف تبدأ بـ إ وتنتهي ب ه ", success: "حتى لزمتي حفظتيها!" }
+    ]
+  },
+  {
+    name: "نبض الحاضر", icon: "❤️", celebration: "stars",
+    mission: { icon: "🍽️", desc: "اختاري نوع حلى أو مشروب مشتهيته الآن أطلبه لك علشان اعطيك الكود", code: "بالعافية" },
+    questions: [
+      { title: "رادار المزاج 🌡️", type: "choice", prompt: "وش أول شيء أسويه إذا حسيت إنك متضايقة؟", answer: "أسألك وش فيك", options: "أسكت,أسولف زيادة,أسألك وش فيك,أضحكك", success: "تعرفين كيف أهتم فيك" },
+      { title: "كود السهر 🌙", type: "text", prompt: "أطول مكالمة بيننا الساعة كم انتهت؟", answer: "وحده", hint: "اكتبي الساعة بالكلمات (وحده ,ثنتين, ثلاث,..)", success: "الوقت معك يمر ثواني" },
+      { title: "نبرة صوتي 📞", type: "choice", prompt: "متى تحسين إن صوتي يتغير ويصير أهدى؟", answer: " لما أقول أحبك", options: "أول ما أصحى, قبل ما انام, لما أقول أحبك, لما أكون تعبان", success: "يا عيني على التركيز" },
+      { title: "لمسة وفاء 👑", type: "choice", prompt: "وين أكثر مكان ودي أبوسك فيه؟", answer: "الخد", options: "الرأس,الكف,الجبين,الخد", success: "يا عيني.. الخد دليل قربك وقدرك العالي عندي" }
+    ]
+  },
+  {
+    name: "أفق الغد", icon: "🌙", celebration: "curtain",
+    mission: { icon: "🚘", desc: `هذي المرحلة هي المرحلة الاخيره ف التحدي غير ..  
+ تحدي تبادل الأدوار: عطيني جدول طلعه في رمضان
+- من التراويح للسحور-
+ تذكرين فيها كل التفاصيل خطوه بخطوه
+ وين نصلي و وين نروح و كل شي... 😉`, code: "احلى رحلة بتكون" },
+    questions: [
+      { title: "أول رمضان 🌙", type: "choice", prompt: "وين بنقضي أول يوم إفطار في رمضان؟", answer: "بيتنا لحالنا", options: "بيت أهلي,بيت أهلك,بيتنا لحالنا,مطعم",hint: " فكري في أول لحظة استقرار", success: "يارب يتمم لنا على خير!" },
+      { title: "منبه الفجر ⏰", type: "choice", prompt: "مين اللي بيصحي الثاني للفجر؟", answer: "انت", options: "انا,انت,المنبه,نسحب عليها",hint: "فكري مين فينا يحب السهر 😉", success: "الله يخليك لي" }
+    ]
+  }
+];
+
+let state = { phase: 0, question: 0 };
+
+function successBubble(msg) {
+  const b = document.getElementById('successBubble');
+  document.getElementById('successMsg').textContent = msg;
+  b.style.display = 'block';
+  confetti(40);
+  setTimeout(() => b.style.display = 'none', 3500);
+}
+
+function errorBubble(msg) {
+  const b = document.getElementById('errorBubble');
+  document.getElementById('errorMsg').textContent = msg;
+  b.style.display = 'block';
+  setTimeout(() => b.style.display = 'none', 3000);
+}
+
+function confetti(count = 30) {
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = ['#d63384','#fff','#00e676','#ffc107'][Math.floor(Math.random()*4)];
+    el.style.animationDuration = (Math.random()*1.5+1)+'s';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+}
+
+function normalize(t) {
+  return String(t||'').trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/\s/g,'');
+}
+
+function save() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
+function load() { 
+  const d = JSON.parse(localStorage.getItem(STORAGE)); 
+  if(d) state = d; 
+}
+
+const game = {
+  init() {
+    load();
+    if(state.phase > 0 || state.question > 0) { showScreen('screen-game'); this.render(); }
+  },
+  start() {
+    state = { phase: 0, question: 0 };
+    save(); showScreen('screen-game'); this.render();
+  },
+  restart() {
+    if(confirm("متأكدة تبين تعيدين من البداية؟")) {
+      localStorage.removeItem(STORAGE); location.reload();
+    }
+  },
+  render() {
+    const phase = PHASES[state.phase];
+    const q = phase.questions[state.question];
+    document.getElementById('phaseTitle').textContent = `${phase.icon} ${phase.name}`;
+    document.getElementById('phaseProgress').textContent = `السؤال ${state.question + 1} من ${phase.questions.length}`;
+    
+    let total=0, done=0;
+    PHASES.forEach((p,i)=>{
+      total+=p.questions.length;
+      if(i<state.phase) done+=p.questions.length;
+      else if(i===state.phase) done+=state.question;
+    });
+    document.getElementById('progressBar').style.width = ((done+1)/total*100)+'%';
+    document.getElementById('stageCounter').textContent = `${done+1} / ${total}`;
+    document.getElementById('stageTitle').textContent = q.title;
+    document.getElementById('stagePrompt').textContent = q.prompt;
+
+    const tb = document.getElementById('taskBox');
+    if(q.task) { tb.style.display='block'; document.getElementById('stageTask').textContent=q.task; }
+    else tb.style.display='none';
+
+    const container = document.getElementById('inputContainer');
+    container.innerHTML = '';
+
+    if(q.type === 'text') {
+      container.innerHTML = '<input type="text" id="ansInput" placeholder="اكتبي هنا..." autocomplete="off">';
+    } else if(q.type === 'choice') {
+      let html = '<div class="options-grid">';
+      q.options.split(',').forEach(o => {
+        html += `<div class="option-card" onclick="game.select(this,'${o.trim()}')">${o.trim()}</div>`;
+      });
+      container.innerHTML = html + '</div><input type="hidden" id="ansInput">';
+    } else if(q.type.startsWith('pin')) {
+      const len = parseInt(q.type.replace('pin',''));
+      let html = '<div class="pin-grid">';
+      for(let i=0; i<len; i++) html += `<input type="tel" maxlength="1" class="pin-input" id="p${i}">`;
+      container.innerHTML = html + '</div>';
+      setTimeout(()=> {
+        const ins = document.querySelectorAll('.pin-input');
+        if(ins[0]) ins[0].focus();
+        ins.forEach((input, idx) => {
+          input.oninput = (e) => { if(e.target.value && idx < len-1) ins[idx+1].focus(); };
+        });
+      }, 100);
+    }
+    document.getElementById('backBtn').style.display = (state.phase>0 || state.question>0) ? 'flex' : 'none';
+  },
+  select(el, val) {
+    document.querySelectorAll('.option-card').forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('ansInput').value = val;
+  },
+  check() {
+    const q = PHASES[state.phase].questions[state.question];
+    let ans = '';
+    if(q.type.startsWith('pin')) {
+      document.querySelectorAll('.pin-input').forEach(i=>ans+=i.value);
+    } else {
+      ans = document.getElementById('ansInput').value;
+    }
+
+    if(!ans) return errorBubble("⚠️ أجيبي أولاً!");
+
+    if(normalize(ans) === normalize(q.answer)) {
+      successBubble(q.success || "✅ صحيح!");
+      setTimeout(() => {
+        state.question++; save();
+        if(state.question >= PHASES[state.phase].questions.length) this.showMission();
+        else this.render();
+      }, 3600);
+    } else {
+      errorBubble("❌ خطأ! حاولي مرة ثانية يا روحي");
+    }
+  },
+  showMission() {
+    const m = PHASES[state.phase].mission;
+    document.getElementById('missionIcon').textContent = m.icon;
+    document.getElementById('missionDesc').textContent = m.desc;
+    showScreen('screen-mission');
+  },
+  verifyCode() {
+    const code = document.getElementById('secretCodeInput').value;
+    const phase = PHASES[state.phase];
+    if(normalize(code) === normalize(phase.mission.code)) {
+      const overlay = phase.celebration === 'stars' ? 'overlayStars' : 'overlayCurtain';
+      document.getElementById(overlay).style.display = 'flex';
+      document.getElementById(overlay.replace('overlay','').toLowerCase()+'Subtitle').textContent = `أكملتِ ${phase.name}`;
+      confetti(80);
+      setTimeout(() => {
+        document.getElementById(overlay).style.display = 'none';
+        state.phase++; state.question = 0; save();
+        if(state.phase >= PHASES.length) this.showWin();
+        else { showScreen('screen-game'); this.render(); }
+      }, 3000);
+    } else {
+      errorBubble("❌ الكود السري غلط!");
+    }
+  },
+  showWin() {
+    const dbox = document.getElementById('finalCodeDigits'); dbox.innerHTML = '';
+    FINAL_CODE.split('').forEach(d => { dbox.innerHTML += `<div class="digit-box">${d}</div>`; });
+    showScreen('screen-win'); confetti(100);
+  },
+  goBack() {
+    if(state.question > 0) state.question--;
+    else if(state.phase > 0) { state.phase--; state.question = PHASES[state.phase].questions.length-1; }
+    save(); this.render();
+  },
+  showHint() {
+    const q = PHASES[state.phase].questions[state.question];
+    successBubble("💡 " + (q.hint || "ركزي شوي وبتعرفين!"));
+  }
+};
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', () => game.init());
+</script>
+</body>
+</html>
